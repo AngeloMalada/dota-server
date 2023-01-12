@@ -166,7 +166,7 @@ app.get('/heroes', (req, res) => {
 async function getStratzData(id: number, date: number, gamemode: any) {
   const config = {
     headers: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJodHRwczovL3N0ZWFtY29tbXVuaXR5LmNvbS9vcGVuaWQvaWQvNzY1NjExOTgwMzI2NzM0NTQiLCJ1bmlxdWVfbmFtZSI6ImdldHRpbmcgZ29vZCIsIlN1YmplY3QiOiJkODcyZjZlZC0xMGQ0LTQ0NDYtYmYzNi1kNzYxNjAwMGU5YjAiLCJTdGVhbUlkIjoiNzI0MDc3MjYiLCJuYmYiOjE2NzI3ODMzMjMsImV4cCI6MTcwNDMxOTMyMywiaWF0IjoxNjcyNzgzMzIzLCJpc3MiOiJodHRwczovL2FwaS5zdHJhdHouY29tIn0.f7yHtQQ-S4X2HVGenM6sR5TGhVKNCMRN0aJFL4r13Eg`,
+      Authorization: `Bearer ${process.env.BEARER}`,
     },
   };
 
