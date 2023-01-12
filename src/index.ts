@@ -2,7 +2,7 @@ import express, { application } from 'express';
 import axios from 'axios';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
-import HeroDataStratz from './data.js';
+import HeroDataStratz from '../utils/data.js';
 
 type playerHero = {
   hero_id: number;
