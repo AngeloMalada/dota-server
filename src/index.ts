@@ -52,9 +52,11 @@ async function getAllHeroImages() {
   return heroes;
 }
 
+const lane = '&lane_role=1&lane_role=2&lane_role=3&lane_role=4';
+
 async function getPlayerData(id: number) {
   const Player: Player = await axios.get(
-    `https://api.opendota.com/api/players/${id}/heroes`,
+    `https://api.opendota.com/api/players/${id}/heroes?date=30${lane}`,
   );
 
   return Player.data;
@@ -159,6 +161,81 @@ app.get('/heroes', (req, res) => {
     .catch((err) => {
       res.send(err);
     });
+});
+
+async function getStratzData(id: number, date: number) {
+  const config = {
+    headers: {
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJodHRwczovL3N0ZWFtY29tbXVuaXR5LmNvbS9vcGVuaWQvaWQvNzY1NjExOTgwMzI2NzM0NTQiLCJ1bmlxdWVfbmFtZSI6ImdldHRpbmcgZ29vZCIsIlN1YmplY3QiOiJkODcyZjZlZC0xMGQ0LTQ0NDYtYmYzNi1kNzYxNjAwMGU5YjAiLCJTdGVhbUlkIjoiNzI0MDc3MjYiLCJuYmYiOjE2NzI3ODMzMjMsImV4cCI6MTcwNDMxOTMyMywiaWF0IjoxNjcyNzgzMzIzLCJpc3MiOiJodHRwczovL2FwaS5zdHJhdHouY29tIn0.f7yHtQQ-S4X2HVGenM6sR5TGhVKNCMRN0aJFL4r13Eg`,
+    },
+  };
+
+  const heroData = await axios
+    .get(
+      `https://api.stratz.com/api/v1/Player/${id}/heroPerformance?startDateTime=${date}`,
+      config,
+    )
+    .catch((err) => {
+      return {
+        data: [
+          {
+            messege: 'error',
+          },
+        ],
+      };
+    });
+
+  heroData.data = heroData.data.filter((hero: any) => {
+    return hero.matchCount > 0;
+  });
+
+  heroData.data.sort((a: any, b: any) => {
+    return b.imp - a.imp;
+  });
+
+  //if data is empty array return messege otherwise return data
+
+  return heroData.data.length === 0
+    ? [
+        {
+          messege: 'No data',
+        },
+      ]
+    : heroData.data;
+}
+
+app.get('/stratz', (req, res) => {
+  // const date = Math.floor(new Date().getTime() / 1000.0) - 2592000;
+  const { id, date } = req.query;
+  getPlayerName(Number(id)).then((playerName) => {
+    getAllHeroImages().then((heroes) => {
+      getStratzData(Number(id), Number(date)).then((stratzData) => {
+        const playerHeroes = stratzData.map((hero) => {
+          const heroImage = heroes.find(
+            (heroImage) => heroImage.hero_id === Number(hero.heroId),
+          );
+          const heroName = HeroDataStratz.find(
+            (heroData) => heroData.id === Number(hero.heroId),
+          )?.localized_name;
+          return {
+            playerName: playerName,
+            Name: heroName,
+            id: Number(hero.heroId),
+            imp: hero.imp,
+            win: hero.winCount,
+            games: hero.matchCount,
+            image_url: heroImage?.image_url,
+            kda: hero.kda,
+            positionScore: hero.positionScore,
+            gpm: hero.goldPerMinute,
+            xpm: hero.experiencePerMinute,
+            messege: hero.messege,
+          };
+        });
+        res.send(playerHeroes);
+      });
+    });
+  });
 });
 app.listen(8080, () => {
   console.log('Server is running on port 8080');
