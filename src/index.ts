@@ -163,16 +163,18 @@ app.get('/heroes', (req, res) => {
     });
 });
 
-async function getStratzData(id: number, date: number) {
+async function getStratzData(id: number, date: number, gamemode: any) {
   const config = {
     headers: {
       Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJodHRwczovL3N0ZWFtY29tbXVuaXR5LmNvbS9vcGVuaWQvaWQvNzY1NjExOTgwMzI2NzM0NTQiLCJ1bmlxdWVfbmFtZSI6ImdldHRpbmcgZ29vZCIsIlN1YmplY3QiOiJkODcyZjZlZC0xMGQ0LTQ0NDYtYmYzNi1kNzYxNjAwMGU5YjAiLCJTdGVhbUlkIjoiNzI0MDc3MjYiLCJuYmYiOjE2NzI3ODMzMjMsImV4cCI6MTcwNDMxOTMyMywiaWF0IjoxNjcyNzgzMzIzLCJpc3MiOiJodHRwczovL2FwaS5zdHJhdHouY29tIn0.f7yHtQQ-S4X2HVGenM6sR5TGhVKNCMRN0aJFL4r13Eg`,
     },
   };
 
+  //0 = unranked 7=ranked 1 = practice
+
   const heroData = await axios
     .get(
-      `https://api.stratz.com/api/v1/Player/${id}/heroPerformance?startDateTime=${date}`,
+      `https://api.stratz.com/api/v1/Player/${id}/heroPerformance?startDateTime=${date}&lobbyType=${gamemode}`,
       config,
     )
     .catch((err) => {
@@ -206,10 +208,10 @@ async function getStratzData(id: number, date: number) {
 
 app.get('/stratz', (req, res) => {
   // const date = Math.floor(new Date().getTime() / 1000.0) - 2592000;
-  const { id, date } = req.query;
+  const { id, date, gamemode } = req.query;
   getPlayerName(Number(id)).then((playerName) => {
     getAllHeroImages().then((heroes) => {
-      getStratzData(Number(id), Number(date)).then((stratzData) => {
+      getStratzData(Number(id), Number(date), gamemode).then((stratzData) => {
         const playerHeroes = stratzData.map((hero) => {
           const heroImage = heroes.find(
             (heroImage) => heroImage.hero_id === Number(hero.heroId),
