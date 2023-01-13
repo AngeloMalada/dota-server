@@ -193,11 +193,10 @@ async function getStratzData(id: number, date: number, gamemode: any) {
 
   heroData.data.sort((a: any, b: any) => {
     return (
-      
-      (Math.pow(b.matchCount, 1.4) * Math.pow(b.winCount / b.matchCount, 1.2) +
-      Math.pow(b.imp, 3) * Math.pow(b.matchCount, 2)) -
+      Math.pow(b.matchCount, 1.4) * Math.pow(b.winCount / b.matchCount, 1.2) +
+      Math.pow(b.imp, 3) * Math.pow(b.matchCount, 0.5) -
       (Math.pow(a.matchCount, 1.4) * Math.pow(a.winCount / a.matchCount, 1.2) +
-        Math.pow(a.imp, 3) * Math.pow(a.matchCount, 2))
+        Math.pow(a.imp, 0.3) * Math.pow(a.matchCount, 1.2))
     );
   });
 
