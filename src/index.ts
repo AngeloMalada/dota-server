@@ -163,7 +163,7 @@ app.get('/heroes', (req, res) => {
     });
 });
 
-async function getStratzData(id: number, date: number, gamemode: any) {
+async function getStratzData(id: number, date: number, gamemode: any,minimumMatches: number) {
   const config = {
     headers: {
       Authorization: `Bearer ${process.env.BEARER}`,
@@ -188,15 +188,13 @@ async function getStratzData(id: number, date: number, gamemode: any) {
     });
 
   heroData.data = heroData.data.filter((hero: any) => {
-    return hero.matchCount > 0;
+    return hero.matchCount > minimumMatches;
   });
 
   heroData.data.sort((a: any, b: any) => {
     return (
-      Math.pow(b.matchCount, 1.4) * Math.pow(b.winCount / b.matchCount, 1.2) +
-      Math.pow(b.imp, 3) * Math.pow(b.matchCount, 0.5) -
-      (Math.pow(a.matchCount, 1.4) * Math.pow(a.winCount / a.matchCount, 1.2) +
-        Math.pow(a.imp, 0.3) * Math.pow(a.matchCount, 1.2))
+      (Math.pow(b.matchCount, 1.4) * Math.pow(b.winCount / b.matchCount, 1.2) + b.imp*100 ) -
+      (Math.pow(a.matchCount, 1.4) * Math.pow(a.winCount / a.matchCount, 1.2) + a.imp*100)
     );
   });
 
@@ -213,10 +211,10 @@ async function getStratzData(id: number, date: number, gamemode: any) {
 
 app.get('/stratz', (req, res) => {
   // const date = Math.floor(new Date().getTime() / 1000.0) - 2592000;
-  const { id, date, gamemode } = req.query;
+  const { id, date, gamemode , matches} = req.query;
   getPlayerName(Number(id)).then((playerName) => {
     getAllHeroImages().then((heroes) => {
-      getStratzData(Number(id), Number(date), gamemode).then((stratzData) => {
+      getStratzData(Number(id), Number(date), gamemode , Number(matches)).then((stratzData) => {
         const playerHeroes = stratzData.map((hero) => {
           const heroImage = heroes.find(
             (heroImage) => heroImage.hero_id === Number(hero.heroId),
